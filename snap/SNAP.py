@@ -16,7 +16,7 @@ class SNAP:
     tezine = np.array
 
     def __init__(self, comparisons: MatricaUsporedbi, dependancies: MatricaZavisnosti):
-        self.tezineUsporedbi = np.array(comparisons.weights).reshape()
+        self.tezineUsporedbi = np.array(comparisons.weights).reshape((1, comparisons.weights.size))
         self.zavisnost = dependancies
 
     def simulate(self, writeToLog=False):
@@ -29,4 +29,4 @@ class SNAP:
             self.norm2 = self.norm / sum
         else:
             self.norm2 = self.norm
-        self.tezine = (self.tezineUsporedbi.reshape((1, self.tezineUsporedbi.size)) + self.norm2) / 2
+        self.tezine = (self.tezineUsporedbi + self.norm2) / 2

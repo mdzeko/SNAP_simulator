@@ -3,6 +3,7 @@ import numpy as np
 
 class MatricaUsporedbi(object):
     relevantna = False
+    kombinacija = np.array
     n = 1
     konzistentnost = 1
     sumCols = np.matrix
@@ -15,10 +16,11 @@ class MatricaUsporedbi(object):
     constants = {1: 0, 2: 0, 3: 0.52, 4: 0.89, 5: 1.11, 6: 1.25, 7: 1.35, 8: 1.4, 9: 1.45, 10: 1.49}
     CI = 0
 
-    def __init__(self, np_matrix: np.matrix):
+    def __init__(self, np_matrix: np.matrix, kombinacija):
         self.U = np_matrix
         self.relevantna = False
         self.konzistentnost = self.izracunajKonzistentnost()
+        self.kombinacija = kombinacija
 
     def ispisiMatricu(self):
         print('A \n', self.U)

@@ -30,7 +30,7 @@ class Generator:
         for combination in gen_array:
             a = np.array(list(combination))
             b = 1 / a
-            U = MatricaUsporedbi(np.matrix(self.izradiMatricu(self, a, b, n)))
+            U = MatricaUsporedbi(np.matrix(self.izradiMatricu(self, a, b, n)), a)
             if U.relevantna:
                 self.matrices.append(U)
                 # fh_prezivjele.write(str(a.tolist() + [' konz:', U.konzistentnost]) + '\n')
@@ -49,7 +49,7 @@ class Generator:
             pola = int(br / 2)
             a = np.array(list(combination[:pola]))
             b = np.array(list(combination[pola:]))
-            Z = MatricaZavisnosti(np.matrix(self.izradiMatricu(self, a, b, n, 0)))
+            Z = MatricaZavisnosti(np.matrix(self.izradiMatricu(self, a, b, n, 0)), combination)
             self.zmatrices.append(Z)
 
         # fh.close()
