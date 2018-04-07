@@ -30,3 +30,4 @@ class SNAP:
         else:
             self.norm2 = self.norm
         self.tezine = (self.tezineUsporedbi + self.norm2) / 2
+        self.tezine = self.tezine[0:, 0]

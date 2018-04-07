@@ -16,43 +16,49 @@ class Generator:
         self.clusters = np.array(range(numOfClusters))
         self.criteria = numOfCriteria
 
-    @staticmethod
-    def generateComparisonMatrix():
+    def generateComparisonMatrix(self):
         return np.matrix('1 2 2 2; 0.5 1 1 1; 0.5 1 1 1; 0.5 1 1 1')
 
-    def generateAllComparisonMatrices(self):
-        # fh = open("usporedbe.txt", "w")
-        # fh_prezivjele = open("prezivjele.txt", "w")
+    def generateAllComparisonMatrices(self, writeToFile=True):
+        NUM_POOL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9]
+        if writeToFile:
+            fh = open("usporedbe.txt", "w")
+            fh_prezivjele = open("prezivjele.txt", "w")
 
         n = self.criteria  # red kvadratne matrice
         br = int((n - 1) * n / 2)  # broj elemenata u gornjem trokutu
-        gen_array = list(itertools.combinations_with_replacement(range(1, 10), br))
+        gen_array = list(itertools.combinations_with_replacement(NUM_POOL, br))
         for combination in gen_array:
             a = np.array(list(combination))
             b = 1 / a
             U = MatricaUsporedbi(np.matrix(self.izradiMatricu(self, a, b, n)), a)
             if U.relevantna:
                 self.matrices.append(U)
-                # fh_prezivjele.write(str(a.tolist() + [' konz:', U.konzistentnost]) + '\n')
-            # fh.write(str(a.tolist() + [' konz:', U.konzistentnost]) + '\n')
-        # fh.close()
-        # fh_prezivjele.close()
+                if writeToFile:
+                    fh_prezivjele.write(str(a.tolist() + [' konz:', U.konzistentnost]) + '\n')
+            if writeToFile:
+                fh.write(str(a.tolist() + [' konz:', U.konzistentnost]) + '\n')
+        if writeToFile:
+            fh.close()
+            fh_prezivjele.close()
 
-    def generateDependancyMatrices(self):
-        # fh = open("zavisnosti.txt", "w")
+    def generateDependancyMatrices(self, writeToFile=True):
+        if writeToFile:
+            fh = open("zavisnosti.txt", "w")
 
         n = self.criteria  # red kvadratne matrice
         br = int((n - 1) * n)  # zbroj broja elemenata u gornjem i donjem trokutu
         gen_array = list(itertools.combinations_with_replacement(range(0, 5), br))
         for combination in gen_array:
-            # fh.write(str(list(combination)) + '\n')
+            if writeToFile:
+                fh.write(str(list(combination)) + '\n')
             pola = int(br / 2)
             a = np.array(list(combination[:pola]))
             b = np.array(list(combination[pola:]))
-            Z = MatricaZavisnosti(np.matrix(self.izradiMatricu(self, a, b, n, 0)), combination)
+            Z = MatricaZavisnosti(np.matrix(self.izradiMatricu(a, b, n, 0)), combination)
             self.zmatrices.append(Z)
-
-        # fh.close()
+        if writeToFile:
+            fh.close()
 
     @staticmethod
     def izradiMatricu(self, gornji_trokut, donji_trokut, n, dijagonala=1):
