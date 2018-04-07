@@ -30,8 +30,8 @@ class Supermatrix:
         while True:
             if self.allColumnsClose(self.L):
                 # alternateMat = np.zeros(self.L.shape)
-                print("stupci su jednaki - broj koraka ", counter, "\n", self.L)
-                konvergira = 1
+                # print("stupci su jednaki - broj koraka ", counter, "\n", self.L)
+                self.konvergira = 1
                 break
                 # np.matmul(self.L, self.L, alternateMat)
                 # if np.allclose(alternateMat, self.L):
@@ -44,7 +44,7 @@ class Supermatrix:
                 self.normalize(self.L)
             counter += 1
             if counter == 30:
-                cezarova = 1
+                self.cezarova = 1
                 self.doAverageMatrix(iterNumForCesarSum, self.L)
                 break
 
@@ -67,7 +67,7 @@ class Supermatrix:
     def checkSumIsOk(self, sums: np.array):
         for i in range(0, len(sums)-1):
             if sums[i] != 0 and sums[i] < .99999999999:
-                rotira = 1
+                self.teziNuli = 1
                 return False
         return True
 
