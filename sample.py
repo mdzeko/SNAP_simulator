@@ -5,11 +5,12 @@ from anp.MatricaUsporedbi import MatricaUsporedbi
 from anp.MatricaZavisnosti import MatricaZavisnosti
 from generator.Generetor import Generator
 from snap.SNAP import SNAP
+
 brojKlastera = 1
 brojKriterija = 4
 gen = Generator(brojKlastera, brojKriterija)
-gen.generateAllComparisonMatrices(writeToFile=False)
-gen.generateDependancyMatrices(writeToFile=False)
+# gen.generateAllComparisonMatrices(writeToFile=False)
+# gen.generateDependancyMatrices(writeToFile=False)
 
 anpList = []
 snapList = []
@@ -34,10 +35,12 @@ snapList = []
 #         # S.calculateLimitMatrix()
 #         # print(S.L)
 # fh.close()
-print("Broj kombinacija za %d klastera i %d kriterija: %d" % (brojKlastera, brojKriterija, len(anpList)) )
+# print("Broj kombinacija za %d klastera i %d kriterija: %d" % (brojKlastera, brojKriterija, len(anpList)))
 
 U = MatricaUsporedbi(Generator.izradiMatricu(None, [1, 1, 1, 1, 1, 2], [1, 1, 1, 1, 1, 0.5], 4), [1, 1, 1, 1, 1, 2])
-Z = MatricaZavisnosti(Generator.izradiMatricu(None, [0, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1], 4, 0), [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1])
+Z = MatricaZavisnosti(Generator.izradiMatricu(None, [0, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1], 4, 0),
+                      [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1])
+
 anp = ANP(U, Z)
 anp.simulate()
 snap = SNAP(U, Z)
