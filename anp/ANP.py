@@ -9,6 +9,12 @@ class ANP:
     tezineUsporedbi = np.array
     zavisnost = MatricaZavisnosti
     tezine = np.array
+    raz1_min = np.array
+    raz1_max = np.array
+    raz2_min = np.array
+    raz2_max = np.array
+    raz3_min = np.array
+    raz3_max = np.array
     supermatrica = Supermatrix
     cesarSumIterNum = 100
 
@@ -17,9 +23,13 @@ class ANP:
         self.zavisnost = dependancies
         self.cesarSumIterNum = iterNumForCesarSum
 
-    def simulate(self, writeToLog=False):
-        self.supermatrica = Supermatrix(self.tezineUsporedbi, self.zavisnost.Z)
+    def simulate(self, writeToLog=False, matricaPrijelaza=False, fiktivnaAlt=False):
+        self.supermatrica = Supermatrix(self.tezineUsporedbi, self.zavisnost.Z, matPrijelaza=matricaPrijelaza, fiktAlt=fiktivnaAlt)
         self.supermatrica.calculateLimitMatrix(self.cesarSumIterNum)
         self.tezine = self.supermatrica.getCriteraWieghts()
+
+    def printResults(self):
+        print("Supermatrica\n", self.supermatrica.S)
+        print("Supermatrica - granicna\n", self.supermatrica.L)
 
 

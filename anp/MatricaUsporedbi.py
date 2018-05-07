@@ -6,18 +6,18 @@ class MatricaUsporedbi(object):
     kombinacija = np.array
     n = 1
     konzistentnost = 1
-    sumCols = np.matrix
-    X = np.matrix
-    weights = np.matrix
-    Y = np.matrix
-    sumRows = np.matrix
-    sumRowsDividedByWeights = np.matrix
+    sumCols = np.array
+    X = np.array
+    weights = np.array
+    Y = np.array
+    sumRows = np.array
+    sumRowsDividedByWeights = np.array
     lam = 0
     constants = {1: 0, 2: 0, 3: 0.52, 4: 0.89, 5: 1.11, 6: 1.25, 7: 1.35, 8: 1.4, 9: 1.45, 10: 1.49}
     CI = 0
 
-    def __init__(self, np_matrix: np.matrix, kombinacija):
-        self.U = np_matrix
+    def __init__(self, np_matrix, kombinacija=None):
+        self.U = np.array(np_matrix)
         self.relevantna = False
         self.konzistentnost = self.izracunajKonzistentnost()
         self.kombinacija = kombinacija
@@ -34,21 +34,19 @@ class MatricaUsporedbi(object):
         print('CO: ', self.konzistentnost)
 
     def izracunajKonzistentnost(self):
-        self.sumCols = np.matrix(np.sum(self.U, axis=0))
-        self.n = self.sumCols.size
-        self.X = np.matrix(data=self.U, copy=True)
+        self.izracunajSumuStupaca()
+        self.normalizirajStupceSumom()
+        self.weights = self.X.mean(axis=1, keepdims=True)
 
-        for i in range(0, self.sumCols.size):
-            self.X[:, i] /= self.sumCols.item(i)
-        self.weights = self.X.mean(1)
-
-        self.Y = np.matrix(data=self.U, copy=True)
+        self.Y = np.array(self.U, copy=True)
         for i in range(0, self.weights.size):
             self.Y[:, i] *= self.weights.item(i)
 
-        self.sumRows = np.matrix(np.sum(self.Y, axis=1))
+        self.sumRows = np.array(np.sum(self.Y, axis=1))
 
-        self.sumRowsDividedByWeights = self.sumRows / self.weights
+        n = len(self.sumRows)
+        temp = self.sumRows.reshape(n, 1)
+        self.sumRowsDividedByWeights = temp / self.weights
 
         self.lam = self.sumRowsDividedByWeights.mean()
 
@@ -56,3 +54,12 @@ class MatricaUsporedbi(object):
         CO = self.CI / (self.constants[self.n])
         self.relevantna = CO <= 0.1
         return CO
+
+    def normalizirajStupceSumom(self):
+        self.X = np.array(self.U, copy=True)
+        for i in range(0, self.sumCols.size):
+            self.X[:, i] /= self.sumCols.item(i)
+
+    def izracunajSumuStupaca(self):
+        self.sumCols = np.array(np.sum(self.U, axis=0))
+        self.n = self.sumCols.size

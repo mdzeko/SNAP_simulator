@@ -2,8 +2,9 @@ import numpy as np
 
 
 class MatricaZavisnosti(object):
-    Z = np.matrix
+    Z = np.array
     kombinacija = np.array
-    def __init__(self, np_matrix: np.matrix, kombinacija):
-        self.Z = np_matrix
+
+    def __init__(self, np_matrix, kombinacija=None):
+        self.Z = np.array(np_matrix)
         self.kombinacija = kombinacija
