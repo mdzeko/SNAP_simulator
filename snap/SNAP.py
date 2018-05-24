@@ -10,38 +10,155 @@ class SNAP:
     CO = np.array
     CI = np.array
     razlike = np.array
-    norm = np.array
-    norm2 = np.array
-    tezine = np.array
+
+    norm_S1 = np.array
+    norm_S3 = np.array
+    norm_S5 = np.array
+    norm_S7 = np.array
+    norm_S9 = np.array
+    norm_S11 = np.array
+
+    norm2_S1 = np.array
+    norm2_S3 = np.array
+    norm2_S5 = np.array
+    norm2_S7 = np.array
+    norm2_S11 = np.array
+
+    tezine_S1 = np.array
+    tezine_S2 = np.array
+    tezine_S3 = np.array
+    tezine_S4 = np.array
+    tezine_S5 = np.array
+    tezine_S6 = np.array
+    tezine_S7 = np.array
+    tezine_S8 = np.array
+    tezine_S9 = np.array
+    tezine_S10 = np.array
+    tezine_S11 = np.array
+    tezine_S12 = np.array
 
     def __init__(self, comparisons: MatricaUsporedbi, dependancies: MatricaZavisnosti):
+        self.n = comparisons.n
         self.tezineUsporedbi = np.array(comparisons.weights).reshape((1, comparisons.weights.size))
         self.zavisnost = dependancies
 
     def simulate(self, writeToLog=False):
-
+        # Zbroj redaka
         self.CO = np.array(np.sum(self.zavisnost.Z, axis=1))
+        # Zbroj stupaca
         self.CI = np.array(np.sum(self.zavisnost.Z, axis=0))
 
-        self.razlike = self.CO - self.CI
-        # SNAP 3 umjesto linije ispod ima: self.norm = self.razlike + 4 * (n - 1) n je broj kriterija
-        # SNAP 5 umjesto linije ispod ima: self.norm = self.razlike + abs(min(razlike)) je broj kriterija
-        self.norm = self.razlike + np.ptp(self.razlike, axis=0)
-        sum = np.sum(self.norm)
-        if sum != 0:
-            self.norm2 = self.norm / sum
-        else:
-            self.norm2 = self.norm
+        # SNAP 7 i 8, 11 i 12
+        C = self.zavisnost.Z / (np.max(self.CI) + 1)
+        D = np.identity(self.n) - C
+        E = np.linalg.inv(D)
+        F = np.matmul(C, E)
+        sumRedaka = np.array(np.sum(F, axis=1))
+        sumStupaca = np.array(np.sum(F, axis=0))
+        rs = sumRedaka - sumStupaca
+        np.around(rs, 8, out=rs)
 
-        # Dio iz AHP-a SNAP 1, dvojka, četvorka i šestica i osmica su bez ovoga
-        self.tezine = (self.tezineUsporedbi + self.norm2) / 2
-        # ============================
-        self.tezine = self.tezine.reshape(len(self.tezine.flatten()), 1)
+        # SNAP 9 i 10
+        S = self.normalizirajStupceSumom(self.zavisnost.Z, self.CI)
+        E = np.ones((self.n, self.n)) / self.n
+        G = (0.85 * S) + (0.15 * E)
+        G = self.izracunajGranicnuMatricu(G)
+        self.norm_S9 = G[0:, 0]
+
+        #SNAP 11 i 12
+        H = (0.85 * C) + (0.15 * E)
+        I = np.identity(self.n) - H
+        J = np.linalg.inv(I)
+        K = np.matmul(H, J)
+        sumRedaka = np.array(np.sum(K, axis=1))
+        sumStupaca = np.array(np.sum(K, axis=0))
+        rs2 = sumRedaka - sumStupaca
+        np.around(rs2, 8, out=rs2)
+
+        self.razlike = self.CO - self.CI
+        # SNAP 1
+        self.norm_S1 = self.razlike + np.ptp(self.razlike, axis=0)
+        self.norm_S7 = rs + np.ptp(rs, axis=0)
+        self.norm_S11 = rs2 + np.ptp(rs2, axis=0)
+        # SNAP 3
+        self.norm_S3 = self.razlike + 4 * (self.n - 1)
+        # SNAP 5
+        self.norm_S5 = self.razlike + abs(min(self.razlike))
+        sum1 = np.sum(self.norm_S1)
+        sum3 = np.sum(self.norm_S3)
+        sum5 = np.sum(self.norm_S5)
+        sum7 = np.sum(self.norm_S7)
+        sum11 = np.sum(self.norm_S11)
+
+        # prvi, treći i peti snap su normalizacija zbrojem
+        if sum1 != 0:
+            self.norm2_S1 = self.norm_S1 / sum1
+        else:
+            self.norm2_S1 = np.ones(self.n) / self.n
+
+        if sum3 != 0:
+            self.norm2_S3 = self.norm_S3 / sum3
+        else:
+            self.norm2_S3 = self.norm_S3
+
+        if sum5 != 0:
+            self.norm2_S5 = self.norm_S5 / sum5
+        else:
+            self.norm2_S5 = np.ones(self.n) / self.n
+
+        if sum7 != 0:
+            self.norm2_S7 = self.norm_S7 / sum7
+        else:
+            self.norm2_S7 = np.ones(self.n) / self.n
+
+        if sum11 != 0:
+            self.norm2_S11 = self.norm_S11 / sum11
+        else:
+            self.norm2_S11 = np.ones(self.n) / self.n
+
+        # Dio iz AHP-a SNAP 1, dvojka, četvorka i šestica su bez ovoga
+        self.tezine_S1 = (self.tezineUsporedbi + self.norm2_S1) / 2
+        self.tezine_S2 = self.norm2_S1
+        self.tezine_S3 = (self.tezineUsporedbi + self.norm2_S3) / 2
+        self.tezine_S4 = self.norm2_S3
+        self.tezine_S5 = (self.tezineUsporedbi + self.norm2_S5) / 2
+        self.tezine_S6 = self.norm2_S5
+        self.tezine_S7 = (self.tezineUsporedbi + self.norm2_S7) / 2
+        self.tezine_S8 = self.norm2_S7
+        self.tezine_S9 = (self.tezineUsporedbi + self.norm_S9.flatten()) / 2
+        self.tezine_S10 = self.norm_S9
+        self.tezine_S11 = (self.tezineUsporedbi + self.norm2_S11) / 2
+        self.tezine_S12 = self.norm2_S11
+
+    def izracunajGranicnuMatricu(self, matrix):
+        while True:
+            if self.allColumnsClose(matrix):
+                break
+            np.matmul(matrix, matrix, out=matrix)
+        return matrix
+
+    def normalizirajStupceSumom(self, matrix, sumCols):
+        X = np.array(matrix, copy=True)
+        for i in range(0, sumCols.size):
+            X[:, i] = np.divide(X[:, i], sumCols.item(i), out=np.zeros_like(X[:, i]), where=sumCols.item(i) != 0)
+        return X
+
+    def allColumnsClose(self, matrix: np.array):
+        for row in matrix.T:
+            if np.count_nonzero(row) > 0 and not np.allclose(matrix.T[0], row, rtol=1e-05, atol=1e-08):
+                return False
+        return True
 
     def printResults(self):
-        print("CO", self.CO)
-        print("CI", self.CI)
-        print("CO - CI", self.razlike)
-        print("Norma1", self.norm)
-        print("Norma2", self.norm2)
-        print("Tezine", self.tezine)
+        print(self.tezine_S1)
+        print(self.tezine_S2)
+        print(self.tezine_S3)
+        print(self.tezine_S4)
+        print(self.tezine_S5)
+        print(self.tezine_S6)
+        print(self.tezine_S7)
+        print(self.tezine_S8)
+        print(self.tezine_S9)
+        print(self.tezine_S10)
+        print(self.tezine_S11)
+        print(self.tezine_S12)
