@@ -9,12 +9,6 @@ class ANP:
     tezineUsporedbi = np.array
     zavisnost = MatricaZavisnosti
     tezine = np.array
-    raz1_min = np.array
-    raz1_max = np.array
-    raz2_min = np.array
-    raz2_max = np.array
-    raz3_min = np.array
-    raz3_max = np.array
     supermatrica = Supermatrix
     cesarSumIterNum = 100
 
