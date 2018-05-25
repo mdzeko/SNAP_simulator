@@ -1,26 +1,38 @@
 import numpy as np
+from numba import jitclass, float64, int32, boolean
+
+spec = [
+    ('U', float64[:, :]),
+    ('konzistentnost', float64),
+    ('relevantna', boolean),
+    ('kombinacija', float64[:]),
+    ('sumCols', float64[:]),
+    ('X', float64[:, :]),
+    ('weights', float64[:]),
+    ('Y', float64[:, :]),
+    ('sumRows', float64[:]),
+    ('sumRowsDividedByWeights', float64[:]),
+    ('lam', float64),
+    ('CI', float64),
+]
 
 
+@jitclass(spec)
 class MatricaUsporedbi(object):
-    relevantna = False
-    kombinacija = np.array
-    n = 1
-    konzistentnost = 1
-    sumCols = np.array
-    X = np.array
-    weights = np.array
-    Y = np.array
-    sumRows = np.array
-    sumRowsDividedByWeights = np.array
-    lam = 0
-    constants = {1: 0, 2: 0, 3: 0.52, 4: 0.89, 5: 1.11, 6: 1.25, 7: 1.35, 8: 1.4, 9: 1.45, 10: 1.49}
-    CI = 0
 
     def __init__(self, np_matrix, kombinacija=None):
         self.U = np.array(np_matrix)
-        self.relevantna = False
         self.konzistentnost = self.izracunajKonzistentnost()
+        self.relevantna = self.konzistentnost <= 0.1
         self.kombinacija = kombinacija
+        self.sumCols = np.array
+        self.X = np.array
+        self.weights = np.array
+        self.Y = np.array
+        self.sumRows = np.array
+        self.sumRowsDividedByWeights = np.array
+        self.lam = 0
+        self.CI = 0
 
     def ispisiMatricu(self):
         print('A \n', self.U)
@@ -34,6 +46,7 @@ class MatricaUsporedbi(object):
         print('CO: ', self.konzistentnost)
 
     def izracunajKonzistentnost(self):
+        constants = {1: 0, 2: 0, 3: 0.52, 4: 0.89, 5: 1.11, 6: 1.25, 7: 1.35, 8: 1.4, 9: 1.45, 10: 1.49}
         self.izracunajSumuStupaca()
         self.normalizirajStupceSumom()
         self.weights = self.X.mean(axis=1, keepdims=True)
@@ -50,9 +63,8 @@ class MatricaUsporedbi(object):
 
         self.lam = self.sumRowsDividedByWeights.mean()
 
-        self.CI = (self.lam - self.n) / (self.n - 1)
-        CO = self.CI / (self.constants[self.n])
-        self.relevantna = CO <= 0.1
+        self.CI = (self.lam - n) / (n - 1)
+        CO = self.CI / (constants[n])
         return CO
 
     def normalizirajStupceSumom(self):
@@ -62,4 +74,3 @@ class MatricaUsporedbi(object):
 
     def izracunajSumuStupaca(self):
         self.sumCols = np.array(np.sum(self.U, axis=0))
-        self.n = self.sumCols.size

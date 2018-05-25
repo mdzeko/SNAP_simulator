@@ -2,34 +2,34 @@ import numpy as np
 import itertools
 from anp.MatricaUsporedbi import MatricaUsporedbi
 from generator.Generetor import Generator
+from numba import jitclass, float64, boolean
 
 
-class Supermatrix:
-    S = np.array
-    Z = np.array
-    comparisonWeights = np.array
-    L = np.array
-    konvergira = 0
-    teziNuli = 0
-    cezarova = 0
+spec = [
+    ('comparisonWeights', float64[:]),
+    ('matPrijelaza', boolean),
+    ('fiktAlt', boolean),
+    ('Z', float64[:, :]),
+    ('S', float64[:, :]),
+    ('L', float64[:, :]),
+    ('konvergira', boolean),
+    ('teziNuli', boolean),
+    ('cezarova', boolean)
+]
 
-    saaty = {
-        0: 1,
-        1: 3,
-        2: 5,
-        3: 7,
-        4: 9,
-        -1: 1/3,
-        -2: 1/5,
-        -3: 1/7,
-        -4: 1/9,
-    }
 
+@jitclass(spec)
+class Supermatrix(object):
     def __init__(self, tezine, zavisnosti, matPrijelaza=False, fiktAlt=False):
         self.comparisonWeights = np.array(tezine)
         self.matPrijelaza = matPrijelaza
         self.fiktAlt = fiktAlt
         self.Z = np.array(zavisnosti, dtype=np.float64)
+        self.S = np.array
+        self.L = np.array
+        self.konvergira = False
+        self.teziNuli = False
+        self.cezarova = False
         self.calculateSupermatrix()
 
     def calculateSupermatrix(self):
@@ -92,7 +92,7 @@ class Supermatrix:
         return True
 
     def checkSumIsOk(self, sums: np.array):
-        for i in range(0, len(sums)-1):
+        for i in range(0, len(sums) - 1):
             if sums[i] != 0 and sums[i] < .99999999999:
                 self.teziNuli = 1
                 return False
@@ -107,6 +107,17 @@ class Supermatrix:
         return matrix
 
     def izracunajPomocuMatPrijelaza(self):
+        saaty = {
+            0: 1,
+            1: 3,
+            2: 5,
+            3: 7,
+            4: 9,
+            -1: 1 / 3,
+            -2: 1 / 5,
+            -3: 1 / 7,
+            -4: 1 / 9,
+        }
         self.S = np.array([])
         for columnIndex in range(0, self.Z.shape[0]):
             col = self.Z[:, columnIndex]
@@ -114,8 +125,9 @@ class Supermatrix:
             # newCol = np.reshape(newCol, (newCol.size, 1))
             gornjiTrokut = []
             for tup in itertools.combinations(newCol, 2):
-                gornjiTrokut = np.append(gornjiTrokut, self.saaty[tup[0] - tup[1]])
-            U = MatricaUsporedbi(Generator.izradiMatricu(np.array(gornjiTrokut), np.reciprocal(gornjiTrokut), newCol.size))
+                gornjiTrokut = np.append(gornjiTrokut, saaty[tup[0] - tup[1]])
+            U = MatricaUsporedbi(
+                Generator.izradiMatricu(np.array(gornjiTrokut), np.reciprocal(gornjiTrokut), newCol.size))
             konacneTezine = np.insert(U.weights, columnIndex, 0, axis=0)
             if self.S.size == 0:
                 self.S = np.array(konacneTezine)
@@ -129,9 +141,4 @@ class Supermatrix:
         altColumn = np.vstack((0, altColumn, 0))
         limitMatrix = np.hstack((limitMatrix, altColumn))
         sums = limitMatrix.sum(axis=0)
-        return np.divide(limitMatrix, sums, out=np.zeros_like(limitMatrix), where=sums != 0) # Nule moraju ostat nule
-
-
-
-
-
+        return np.divide(limitMatrix, sums, out=np.zeros_like(limitMatrix), where=sums != 0)  # Nule moraju ostat nule

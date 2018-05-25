@@ -2,25 +2,27 @@ import numpy as np
 from anp.MatricaUsporedbi import MatricaUsporedbi
 from anp.MatricaZavisnosti import MatricaZavisnosti
 import itertools
+from numba import jitclass
+from numba import int32, float64
+
+spec = [
+    ('criteria', int32)
+]
 
 
-
-class Generator:
-    matrices = []
-    zmatrices = []
-
-    def __init__(self, numOfClusters: int, numOfCriteria: int):
+@jitclass(spec)
+class Generator(object):
+    def __init__(self, numOfClusters: int32, numOfCriteria: int32):
         """
-        :param numOfClusters: Broj klastera za koji se generiraju ulazni parametri
         :param numOfCriteria: Broj kriterija po klasteru
         """
-        self.clusters = np.array(range(numOfClusters))
         self.criteria = numOfCriteria
 
     def generateComparisonMatrix(self):
         return np.matrix('1 2 2 2; 0.5 1 1 1; 0.5 1 1 1; 0.5 1 1 1')
 
     def generateAllComparisonMatrices(self, writeToFile=True):
+        # matrices = []
         NUM_POOL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9]
         if writeToFile:
             csvUsporedbe = open("usporedbe.csv", "w")
@@ -35,7 +37,7 @@ class Generator:
             # b = 1 / a
             U = MatricaUsporedbi(np.matrix(self.izradiMatricu(a, b, n)), a)
             if U.relevantna:
-                self.matrices.append(U)
+                # matrices.append(U)
                 if writeToFile:
                     csvPrezivjele.write(str(a.tolist()) + ";" + str(U.konzistentnost) + "\n")
             if writeToFile:
@@ -45,6 +47,7 @@ class Generator:
             csvPrezivjele.close()
 
     def generateDependancyMatrices(self, writeToFile=True):
+        # zmatrices = []
         if writeToFile:
             fh = open("zavisnosti.csv", "w")
 
@@ -58,13 +61,11 @@ class Generator:
             a = np.array(list(combination[:pola]))
             b = np.array(list(combination[pola:]))
             Z = MatricaZavisnosti(np.matrix(self.izradiMatricu(a, b, n, 0)), combination)
-            self.zmatrices.append(Z)
+            # zmatrices.append(Z)
         if writeToFile:
             fh.close()
 
-    @staticmethod
-    def izradiMatricu(gornji_trokut, donji_trokut, n, dijagonala=1):
-
+    def izradiMatricu(self, gornji_trokut, donji_trokut, n, dijagonala=1):
         if dijagonala == 0:
             uper = np.zeros((n, n))
         else:
@@ -85,16 +86,14 @@ class Generator:
 
         return uper
 
-    @staticmethod
-    def izradiMatUsporedbe(kombinacija, n):
+    def izradiMatUsporedbe(self, kombinacija, n):
         a = np.array(kombinacija)
         a = a / 1
         b = np.divide(1., a, out=np.zeros_like(a), where=a != 0.0)
-        return Generator.izradiMatricu(a, b, n)
+        return self.izradiMatricu(a, b, n)
 
-    @staticmethod
-    def izradiMatZavisnosti(kombinacija, n):
+    def izradiMatZavisnosti(self, kombinacija, n):
         pola = int(len(kombinacija) / 2)
         a = np.array(list(kombinacija[:pola]))
         b = np.array(list(kombinacija[pola:]))
-        return Generator.izradiMatricu(a, b, n, 0)
+        return self.izradiMatricu(a, b, n, 0)

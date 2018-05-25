@@ -1,9 +1,15 @@
 import numpy as np
+from numba import jitclass, float64
 
 
+spec = [
+    ('Z', float64[:, :]),
+    ('kombinacija', float64[:]),
+]
+
+
+@jitclass(spec)
 class MatricaZavisnosti(object):
-    Z = np.array
-    kombinacija = np.array
 
     def __init__(self, np_matrix, kombinacija=None):
         self.Z = np.array(np_matrix)
