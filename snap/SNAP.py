@@ -1,12 +1,9 @@
 import numpy as np
 
-from anp.MatricaUsporedbi import MatricaUsporedbi
-from anp.MatricaZavisnosti import MatricaZavisnosti
-
 
 class SNAP:
     tezineUsporedbi = np.array
-    zavisnost = MatricaZavisnosti
+    zavisnost = np.array
     CO = np.array
     CI = np.array
     razlike = np.array
@@ -37,9 +34,9 @@ class SNAP:
     tezine_S11 = np.array
     tezine_S12 = np.array
 
-    def __init__(self, comparisons: MatricaUsporedbi, dependancies: MatricaZavisnosti):
-        self.n = comparisons.n
-        self.tezineUsporedbi = np.array(comparisons.weights).reshape((1, comparisons.weights.size))
+    def __init__(self, comparisons, dependancies):
+        self.n = comparisons.size
+        self.tezineUsporedbi = np.array(comparisons).reshape((1, self.n))
         self.zavisnost = dependancies
 
     def simulate(self, writeToLog=False):

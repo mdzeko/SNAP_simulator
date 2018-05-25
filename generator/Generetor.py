@@ -4,7 +4,6 @@ from anp.MatricaZavisnosti import MatricaZavisnosti
 import itertools
 
 
-
 class Generator:
     matrices = []
     zmatrices = []
@@ -21,7 +20,7 @@ class Generator:
         return np.matrix('1 2 2 2; 0.5 1 1 1; 0.5 1 1 1; 0.5 1 1 1')
 
     def generateAllComparisonMatrices(self, writeToFile=True):
-        NUM_POOL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9]
+        NUM_POOL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 1 / 2, 1 / 3, 1 / 4, 1 / 5, 1 / 6, 1 / 7, 1 / 8, 1 / 9]
         if writeToFile:
             csvUsporedbe = open("usporedbe.csv", "w")
             csvPrezivjele = open("prezivjele.csv", "w")
@@ -75,7 +74,8 @@ class Generator:
             uskladi_indekse = list(zip(indeksi[0], indeksi[1]))
             uskladi_indekse.sort(key=lambda x: x[1])
             indeksi_DT = (
-                np.array(list(map(lambda x: x[0], uskladi_indekse))), np.array(list(map(lambda x: x[1], uskladi_indekse))))
+                np.array(list(map(lambda x: x[0], uskladi_indekse))),
+                np.array(list(map(lambda x: x[1], uskladi_indekse))))
             uper[indeksi_DT] = donji_trokut
         except ValueError:
             print(gornji_trokut)
