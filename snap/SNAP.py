@@ -41,12 +41,12 @@ class SNAP:
 
     def simulate(self, writeToLog=False):
         # Zbroj redaka
-        self.CO = np.array(np.sum(self.zavisnost.Z, axis=1))
+        self.CO = np.array(np.sum(self.zavisnost, axis=1))
         # Zbroj stupaca
-        self.CI = np.array(np.sum(self.zavisnost.Z, axis=0))
+        self.CI = np.array(np.sum(self.zavisnost, axis=0))
 
         # SNAP 7 i 8, 11 i 12
-        C = self.zavisnost.Z / (np.max(self.CI) + 1)
+        C = self.zavisnost / (np.max(self.CI) + 1)
         D = np.identity(self.n) - C
         E = np.linalg.inv(D)
         F = np.matmul(C, E)
@@ -56,7 +56,7 @@ class SNAP:
         np.around(rs, 8, out=rs)
 
         # SNAP 9 i 10
-        S = self.normalizirajStupceSumom(self.zavisnost.Z, self.CI)
+        S = self.normalizirajStupceSumom(self.zavisnost, self.CI)
         E = np.ones((self.n, self.n)) / self.n
         G = (0.85 * S) + (0.15 * E)
         G = self.izracunajGranicnuMatricu(G)
