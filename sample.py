@@ -34,6 +34,16 @@ header = ['ANP1', 'ANP2', 'ANP3', 'ANP4', 'SNAP1', 'min_ANP', 'max_ANP', 'R1_min
           'rank_SNAP5', 'rank_SNAP6', 'rank_SNAP7', 'rank_SNAP8',
           'rank_SNAP9', 'rank_SNAP10', 'rank_SNAP11', 'rank_SNAP12']
 
+correlationColumns = ['SNAP1_elem_R1', 'SNAP2_elem_R1', 'SNAP3_elem_R1', 'SNAP4_elem_R1',
+                      'SNAP5_elem_R1', 'SNAP6_elem_R1', 'SNAP7_elem_R1', 'SNAP8_elem_R1',
+                      'SNAP9_elem_R1', 'SNAP10_elem_R1', 'SNAP11_elem_R1', 'SNAP12_elem_R1',
+                      'SNAP1_elem_R2', 'SNAP2_elem_R2', 'SNAP3_elem_R2', 'SNAP4_elem_R2',
+                      'SNAP5_elem_R2', 'SNAP6_elem_R2', 'SNAP7_elem_R2', 'SNAP8_elem_R2',
+                      'SNAP9_elem_R2', 'SNAP10_elem_R2', 'SNAP11_elem_R2', 'SNAP12_elem_R2',
+                      'SNAP1_elem_R3', 'SNAP2_elem_R3', 'SNAP3_elem_R3', 'SNAP4_elem_R3',
+                      'SNAP5_elem_R3', 'SNAP6_elem_R3', 'SNAP7_elem_R3', 'SNAP8_elem_R3',
+                      'SNAP9_elem_R3', 'SNAP10_elem_R3', 'SNAP11_elem_R3', 'SNAP12_elem_R3']
+
 
 def printExecutionTimes(t1, t2, t3, t4, t5, t_res):
     print("Ukupno vrijeme izvršavanja", time.process_time() - totalElapsed)
@@ -77,8 +87,8 @@ def printExecutionTimes(t1, t2, t3, t4, t5, t_res):
 
 def doSimulation(usporedba, zavisnost):
     counter = 0
-    usp = MatricaUsporedbi(gen.izradiMatUsporedbe(ast.literal_eval(usporedba), brojKriterija))
-    zav = MatricaZavisnosti(gen.izradiMatZavisnosti(ast.literal_eval(zavisnost), brojKriterija))
+    usp = MatricaUsporedbi(Generator.izradiMatUsporedbe(ast.literal_eval(usporedba), brojKriterija))
+    zav = MatricaZavisnosti(Generator.izradiMatZavisnosti(ast.literal_eval(zavisnost), brojKriterija))
 
     anp1 = ANP(usp.weights, zav.Z)
     anp1.simulate()
@@ -219,20 +229,24 @@ def main():
 
 def processResults():
     df = pd.DataFrame(list(results.values()))
-    print("Broj. krit:", df.count())
+    print("Broj krit. ", brojKriterija, " broj klast. ", brojKlastera, " broj komb:", len(df.index))
+    correlation = df[correlationColumns].corr('spearman')
+    distributions = df[correlationColumns].apply(pd.Series.value_counts)
+    distributions.to_csv(("distrib_" + str(brojKlastera) + "_" + str(brojKriterija) + ".csv"), header=True, sep=";", na_rep='NaN')
+    correlation.to_csv(("corr_" + str(brojKlastera) + "_" + str(brojKriterija) + ".csv"), header=True, sep=";", na_rep='NaN')
 
 
 if __name__ == "__main__":
-    if sys.argv[1] in ("-h", "-help", "--help"):
-        print("main.py <datotekaUsporedbi> <datotekaZavisnost> <brojDretvi>")
-        print("PRIMJER: python main.py '~/usporedbe.csv' '~/zavisnosti.csv' 4")
-    inputUsporedbe, inputZavisnosti, brojDretvi = tuple(sys.argv[1:])
+    # if sys.argv[1] in ("-h", "-help", "--help") or sys.argv.count() < 2:
+    #     print("main.py <datotekaUsporedbi> <datotekaZavisnost> <brojDretvi>")
+    #     print("PRIMJER: python main.py '~/usporedbe.csv' '~/zavisnosti.csv' 4")
+    #     sys.exit(2)
+    # inputUsporedbe, inputZavisnosti, brojDretvi = tuple(sys.argv[1:])
     results = {}
     start = time.time()
-    # main()
-    # processResults()
+    main()
+    processResults()
     print(time.time() - start)
-
 
 # usp = MatricaUsporedbi(gen.izradiMatUsporedbe([1, 1, 1, 1, 1, 1, 1, 1, 1, 1], brojKriterija))
 # zav = MatricaZavisnosti(
