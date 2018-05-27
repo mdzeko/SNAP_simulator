@@ -10,13 +10,13 @@ import csv
 import ast
 import time
 import pandas as pd
+import sys
 from multiprocessing import Pool as ThreadPool
 
 totalElapsed = time.process_time()
 brojKlastera = 1
 brojKriterija = 4
 
-gen = Generator(brojKlastera, brojKriterija)
 header = ['ANP1', 'ANP2', 'ANP3', 'ANP4', 'SNAP1', 'min_ANP', 'max_ANP', 'R1_min', 'R1_max',
           'SNAP1_elem_R1', 'SNAP2_elem_R1', 'SNAP3_elem_R1', 'SNAP4_elem_R1',
           'SNAP5_elem_R1', 'SNAP6_elem_R1', 'SNAP7_elem_R1', 'SNAP8_elem_R1',
@@ -217,13 +217,22 @@ def main():
     # printExecutionTimes(t1, t2, t3, t4, t5, t_res)
 
 
+def processResults():
+    df = pd.DataFrame(list(results.values()))
+    print("Broj. krit:", df.count())
+
+
 if __name__ == "__main__":
+    if sys.argv[1] in ("-h", "-help", "--help"):
+        print("main.py <datotekaUsporedbi> <datotekaZavisnost> <brojDretvi>")
+        print("PRIMJER: python main.py '~/usporedbe.csv' '~/zavisnosti.csv' 4")
+    inputUsporedbe, inputZavisnosti, brojDretvi = tuple(sys.argv[1:])
     results = {}
     start = time.time()
-    main()
+    # main()
+    # processResults()
     print(time.time() - start)
-    df = pd.DataFrame(list(results.values()))
-    print(df)
+
 
 # usp = MatricaUsporedbi(gen.izradiMatUsporedbe([1, 1, 1, 1, 1, 1, 1, 1, 1, 1], brojKriterija))
 # zav = MatricaZavisnosti(
