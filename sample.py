@@ -10,7 +10,7 @@ import csv
 import ast
 import time
 import pandas as pd
-import sys
+import sys, os
 from multiprocessing import Pool as ThreadPool
 
 totalElapsed = time.process_time()
@@ -206,24 +206,28 @@ def doSimulation(usporedba, zavisnost):
     return res
 
 
+def clear():
+    if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+        os.system('clear')
+    else:
+        os.system('cls')
+
+
 def main():
     pool = ThreadPool(4)
     # execute only if run as a script
-    with open("test.csv", "r") as csvUsporedbe, open("test_z.csv", "r") as csvZavisnosti:
+    with open("prezivjele.csv", "r") as csvUsporedbe, open("zavisnosti.csv", "r") as csvZavisnosti:
         usporedbeReader = csv.reader(csvUsporedbe, delimiter=';')
         zavisnostiReader = csv.reader(csvZavisnosti, delimiter=';')
         listaZavisnosti = list(zavisnostiReader)
         listaUsporedbi = list(usporedbeReader)
 
-    counter = 0
     zavLista = []
     for redak in listaZavisnosti:
         zavLista.append(redak[0])
     for usporedba in listaUsporedbi:
-        counter += 1
-        print(counter)
         doPartOfSimulation = partial(doSimulation, usporedba[0])
-        results.update(pool.map(doPartOfSimulation, zavLista))
+        results.update(pool.imap_unordered(doPartOfSimulation, [redak[0] for redak in listaZavisnosti], chunksize=400))
     # printExecutionTimes(t1, t2, t3, t4, t5, t_res)
 
 
