@@ -147,6 +147,7 @@ class SNAP:
         return True
 
     def printResults(self):
+        print(self.tezineUsporedbi)
         print(self.tezine_S1)
         print(self.tezine_S2)
         print(self.tezine_S3)
