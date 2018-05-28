@@ -34,15 +34,21 @@ header = ['ANP1', 'ANP2', 'ANP3', 'ANP4', 'SNAP1', 'min_ANP', 'max_ANP', 'R1_min
           'rank_SNAP5', 'rank_SNAP6', 'rank_SNAP7', 'rank_SNAP8',
           'rank_SNAP9', 'rank_SNAP10', 'rank_SNAP11', 'rank_SNAP12']
 
-correlationColumns = ['SNAP1_elem_R1', 'SNAP2_elem_R1', 'SNAP3_elem_R1', 'SNAP4_elem_R1',
-                      'SNAP5_elem_R1', 'SNAP6_elem_R1', 'SNAP7_elem_R1', 'SNAP8_elem_R1',
-                      'SNAP9_elem_R1', 'SNAP10_elem_R1', 'SNAP11_elem_R1', 'SNAP12_elem_R1',
-                      'SNAP1_elem_R2', 'SNAP2_elem_R2', 'SNAP3_elem_R2', 'SNAP4_elem_R2',
-                      'SNAP5_elem_R2', 'SNAP6_elem_R2', 'SNAP7_elem_R2', 'SNAP8_elem_R2',
-                      'SNAP9_elem_R2', 'SNAP10_elem_R2', 'SNAP11_elem_R2', 'SNAP12_elem_R2',
-                      'SNAP1_elem_R3', 'SNAP2_elem_R3', 'SNAP3_elem_R3', 'SNAP4_elem_R3',
-                      'SNAP5_elem_R3', 'SNAP6_elem_R3', 'SNAP7_elem_R3', 'SNAP8_elem_R3',
-                      'SNAP9_elem_R3', 'SNAP10_elem_R3', 'SNAP11_elem_R3', 'SNAP12_elem_R3']
+distributionColumns = ['SNAP1_elem_R1', 'SNAP2_elem_R1', 'SNAP3_elem_R1', 'SNAP4_elem_R1',
+                       'SNAP5_elem_R1', 'SNAP6_elem_R1', 'SNAP7_elem_R1', 'SNAP8_elem_R1',
+                       'SNAP9_elem_R1', 'SNAP10_elem_R1', 'SNAP11_elem_R1', 'SNAP12_elem_R1',
+                       'SNAP1_elem_R2', 'SNAP2_elem_R2', 'SNAP3_elem_R2', 'SNAP4_elem_R2',
+                       'SNAP5_elem_R2', 'SNAP6_elem_R2', 'SNAP7_elem_R2', 'SNAP8_elem_R2',
+                       'SNAP9_elem_R2', 'SNAP10_elem_R2', 'SNAP11_elem_R2', 'SNAP12_elem_R2',
+                       'SNAP1_elem_R3', 'SNAP2_elem_R3', 'SNAP3_elem_R3', 'SNAP4_elem_R3',
+                       'SNAP5_elem_R3', 'SNAP6_elem_R3', 'SNAP7_elem_R3', 'SNAP8_elem_R3',
+                       'SNAP9_elem_R3', 'SNAP10_elem_R3', 'SNAP11_elem_R3', 'SNAP12_elem_R3']
+correlationColumns = ['rank_ANP1', 'rank_ANP2', 'rank_ANP3',
+                      'rank_ANP4', 'rank_SNAP1', 'rank_SNAP2',
+                      'rank_SNAP3', 'rank_SNAP4', 'rank_SNAP5',
+                      'rank_SNAP6', 'rank_SNAP7', 'rank_SNAP8',
+                      'rank_SNAP9', 'rank_SNAP10', 'rank_SNAP11',
+                      'rank_SNAP12']
 
 
 def printExecutionTimes(t1, t2, t3, t4, t5, t_res):
@@ -154,6 +160,7 @@ def doSimulation(usporedba, zavisnost):
     snap11_elem_r3 = np.average(np.logical_and(snap.tezine_S11 <= r3_max, snap.tezine_S11 >= r3_min))
     snap12_elem_r3 = np.average(np.logical_and(snap.tezine_S12 <= r3_max, snap.tezine_S12 >= r3_min))
 
+# Zaokružiti težine na 5 ili 6 decimala jer rangiranje zna bit osjetljivo
     rank_anp1 = rankdata(anp1.tezine, method='ordinal')
     rank_anp2 = rankdata(anp2.tezine, method='ordinal')
     rank_anp3 = rankdata(anp3.tezine, method='ordinal')
@@ -216,7 +223,7 @@ def clear():
 def main():
     pool = ThreadPool(4)
     # execute only if run as a script
-    with open("prezivjele.csv", "r") as csvUsporedbe, open("zavisnosti.csv", "r") as csvZavisnosti:
+    with open("test.csv", "r") as csvUsporedbe, open("zavisnosti.csv", "r") as csvZavisnosti:
         usporedbeReader = csv.reader(csvUsporedbe, delimiter=';')
         zavisnostiReader = csv.reader(csvZavisnosti, delimiter=';')
         listaZavisnosti = list(zavisnostiReader)
@@ -228,16 +235,19 @@ def main():
     for usporedba in listaUsporedbi:
         doPartOfSimulation = partial(doSimulation, usporedba[0])
         results.update(pool.imap_unordered(doPartOfSimulation, [redak[0] for redak in listaZavisnosti], chunksize=400))
-    # printExecutionTimes(t1, t2, t3, t4, t5, t_res)
+        print(sys.getsizeof(results) / 1024 / 1024)
 
 
 def processResults():
     df = pd.DataFrame(list(results.values()))
     print("Broj krit. ", brojKriterija, " broj klast. ", brojKlastera, " broj komb:", len(df.index))
-    correlation = df[correlationColumns].corr('spearman')
-    distributions = df[correlationColumns].apply(pd.Series.value_counts)
-    distributions.to_csv(("distrib_" + str(brojKlastera) + "_" + str(brojKriterija) + ".csv"), header=True, sep=";", na_rep='NaN')
-    correlation.to_csv(("corr_" + str(brojKlastera) + "_" + str(brojKriterija) + ".csv"), header=True, sep=";", na_rep='NaN')
+    df.to_csv("rezultati_" + str(brojKlastera) + "_" + str(brojKriterija) + ".csv", header=True)
+    # correlation = df[correlationColumns].corr('spearman')
+    distributions = df[distributionColumns].apply(pd.Series.value_counts)
+    distributions.to_csv(("distrib_" + str(brojKlastera) + "_" + str(brojKriterija) + ".csv"), header=True, sep=";",
+                         na_rep='0')
+    # correlation.to_csv(("corr_" + str(brojKlastera) + "_" + str(brojKriterija) + ".csv"), header=True, sep=";",
+                       # na_rep='0')
 
 
 if __name__ == "__main__":
