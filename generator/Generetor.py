@@ -22,8 +22,8 @@ class Generator:
     def generateAllComparisonMatrices(self, writeToFile=True):
         NUM_POOL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 1 / 2, 1 / 3, 1 / 4, 1 / 5, 1 / 6, 1 / 7, 1 / 8, 1 / 9]
         if writeToFile:
-            csvUsporedbe = open("usporedbe.csv", "w")
-            csvPrezivjele = open("prezivjele.csv", "w")
+            csvUsporedbe = open("usporedbe_" + str(self.clusters) + "_" + str(self.criteria) + ".csv", "w")
+            csvPrezivjele = open("prezivjele_" + str(self.clusters) + "_" + str(self.criteria) + ".csv", "w")
 
         n = self.criteria  # red kvadratne matrice
         br = int((n - 1) * n / 2)  # broj elemenata u gornjem trokutu
@@ -45,7 +45,7 @@ class Generator:
 
     def generateDependancyMatrices(self, writeToFile=True):
         if writeToFile:
-            fh = open("zavisnosti.csv", "w")
+            fh = open("zavisnosti_" + str(self.clusters) + "_" + str(self.criteria) + ".csv", "w")
 
         n = self.criteria  # red kvadratne matrice
         br = int((n - 1) * n)  # zbroj broja elemenata u gornjem i donjem trokutu
