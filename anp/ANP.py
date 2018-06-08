@@ -14,8 +14,9 @@ class ANP:
         self.zavisnost = dependancies
         self.cesarSumIterNum = iterNumForCesarSum
 
-    def simulate(self, writeToLog=False, matricaPrijelaza=False, fiktivnaAlt=False):
-        self.supermatrica = Supermatrix(self.tezineUsporedbi, self.zavisnost, matPrijelaza=matricaPrijelaza, fiktAlt=fiktivnaAlt)
+    def simulate(self, writeToLog=False, matricaPrijelaza=False, fiktivnaAlt=False, variant='single'):
+        self.supermatrica = Supermatrix(self.tezineUsporedbi, self.zavisnost,
+                                        matPrijelaza=matricaPrijelaza, fiktAlt=fiktivnaAlt, variant=variant)
         self.supermatrica.calculateLimitMatrix(self.cesarSumIterNum)
         self.tezine = self.supermatrica.getCriteraWieghts()
 

@@ -25,11 +25,12 @@ class Supermatrix:
         -4: 1/9,
     }
 
-    def __init__(self, tezine, zavisnosti, matPrijelaza=False, fiktAlt=False):
+    def __init__(self, tezine, zavisnosti, matPrijelaza=False, fiktAlt=False, variant='single'):
         self.comparisonWeights = np.array(tezine)
         self.matPrijelaza = matPrijelaza
         self.fiktAlt = fiktAlt
-        self.Z = np.array(zavisnosti, dtype=np.float64)
+        self.Z = np.array(zavisnosti)
+        self.variant = variant
         self.calculateSupermatrix()
 
     def calculateSupermatrix(self):
@@ -39,19 +40,21 @@ class Supermatrix:
             self.S = np.divide(self.Z, sums, out=np.zeros_like(self.Z), where=sums != 0)
         else:
             self.izracunajPomocuMatPrijelaza()
-        self.S = np.hstack((self.comparisonWeights, self.S))
-        retci, stupci = self.S.shape
-        self.S = np.vstack((np.zeros(stupci), self.S))
+        if self.variant == 'single':
+            self.S = np.hstack((self.comparisonWeights, self.S))
+            retci, stupci = self.S.shape
+            self.S = np.vstack((np.zeros(stupci), self.S))
         retci, stupci = self.S.shape
         if self.fiktAlt:
             self.S = self.dodajFiktivnu(self.S, brojRedaka=retci, brojStupaca=stupci)
 
     def calculateLimitMatrix(self, iterNumForCesarSum):
-        self.L = np.array(self.S, dtype=np.float64)
+        self.L = np.array(self.S)
         np.matmul(self.S, self.S, self.L)
+        temp = np.array(self.S, copy=True)
         counter = 0
         while True:
-            if self.allColumnsClose(self.L):
+            if self.allColumnsClose(self.L) or self.closeToPreviousMatrix(self.L, temp):
                 # alternateMat = np.zeros(self.L.shape)
                 # print("stupci su jednaki - broj koraka ", counter, "\n", self.L)
                 self.konvergira = 1
@@ -62,32 +65,43 @@ class Supermatrix:
                 # else:
                 #     self.doAverageMatrix(self.comparisonWeights.shape[0], alternateMat)
                 #     break
+            temp = np.array(self.L, copy=True)
             np.matmul(self.L, self.L, self.L)
             if not self.checkSumIsOk(np.array(np.sum(self.L, axis=0))):
                 self.normalize(self.L)
             counter += 1
             if counter == 30:
                 self.cezarova = 1
-                self.doAverageMatrix(iterNumForCesarSum, self.L)
+                self.L = self.doAverageMatrix(iterNumForCesarSum, self.L)
                 break
 
     def doAverageMatrix(self, iterNum, matrix: np.array):
-        sumMatrix = np.array(matrix, dtype=np.float64)
+        sumMatrix = np.array(matrix)
         for i in range(iterNum):
             np.matmul(matrix, matrix, matrix)
             sumMatrix += matrix
         return sumMatrix / iterNum
 
     def getCriteraWieghts(self):
-        temp = np.array(self.L[1:, 0])
+        avgLimit = np.average(self.L, axis=1)
+        index = int(self.variant == 'single')
+        temp = np.array(avgLimit[index:])
+
         if self.fiktAlt:
-            temp = np.array(self.L[1:-1, 0])
+            temp = np.array(avgLimit[index:-1])
             temp = temp / np.sum(temp)
+
         return temp.reshape((len(temp), 1))
 
     def allColumnsClose(self, matrix: np.array):
         for row in matrix.T:
-            if np.count_nonzero(row) > 0 and not np.allclose(matrix.T[0], row, rtol=1e-05, atol=1e-08):
+            if not np.allclose(matrix.T[0], row, rtol=1e-05, atol=1e-08):
+                return False
+        return True
+
+    def closeToPreviousMatrix(self, current: np.array, previous: np.array):
+        for current_row, previous_row in zip(current.T, previous.T):
+            if not np.allclose(current_row, previous_row, rtol=1e-05, atol=1e-08):
                 return False
         return True
 
@@ -124,9 +138,13 @@ class Supermatrix:
 
     def dodajFiktivnu(self, limitMatrix, brojRedaka, brojStupaca):
         limitMatrix = np.vstack((limitMatrix, np.ones(brojStupaca)))
-        altColumn = np.ones((brojRedaka - 1, 1))
-        altColumn /= (brojRedaka - 1)
-        altColumn = np.vstack((0, altColumn, 0))
+        altColumn = np.ones((brojRedaka, 1))
+        altColumn /= brojRedaka
+        altColumn = np.vstack((altColumn, 0))
+        if self.variant == 'single':
+            altColumn = np.ones((brojRedaka - 1, 1))
+            altColumn /= (brojRedaka - 1)
+            altColumn = np.vstack((0, altColumn, 0))
         limitMatrix = np.hstack((limitMatrix, altColumn))
         sums = limitMatrix.sum(axis=0)
         return np.divide(limitMatrix, sums, out=np.zeros_like(limitMatrix), where=sums != 0) # Nule moraju ostat nule

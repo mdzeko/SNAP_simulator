@@ -336,7 +336,7 @@ def main():
         listaUsporedbi = list(usporedbeReader)
 
     for usporedba in listaUsporedbi:
-        doPartOfSimulation = partial(doSimulation, usporedba[0])
+        doPartOfSimulation = partial(doClusterTest, usporedba[0])
         results.update(pool.imap_unordered(doPartOfSimulation, [redak[0] for redak in listaZavisnosti], chunksize=400))
 
 
