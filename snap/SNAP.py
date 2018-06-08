@@ -21,17 +21,11 @@ class SNAP:
     norm2_S7 = np.array
     norm2_S11 = np.array
 
-    tezine_S1 = np.array
     tezine_S2 = np.array
-    tezine_S3 = np.array
     tezine_S4 = np.array
-    tezine_S5 = np.array
     tezine_S6 = np.array
-    tezine_S7 = np.array
     tezine_S8 = np.array
-    tezine_S9 = np.array
     tezine_S10 = np.array
-    tezine_S11 = np.array
     tezine_S12 = np.array
 
     def __init__(self, comparisons, dependancies):
@@ -45,7 +39,7 @@ class SNAP:
         # Zbroj stupaca
         self.CI = np.array(np.sum(self.zavisnost, axis=0))
 
-        # SNAP 7 i 8, 11 i 12
+        # SNAP 7 i 8
         C = self.zavisnost / (np.max(self.CI) + 1)
         D = np.identity(self.n) - C
         E = np.linalg.inv(D)
@@ -73,14 +67,11 @@ class SNAP:
         np.around(rs2, 8, out=rs2)
 
         self.razlike = self.CO - self.CI
-        # SNAP 1
         self.norm_S1 = self.razlike + np.ptp(self.razlike, axis=0)
+        self.norm_S3 = self.razlike + 4 * (self.n - 1)
+        self.norm_S5 = self.razlike + abs(min(self.razlike))
         self.norm_S7 = rs + np.ptp(rs, axis=0)
         self.norm_S11 = rs2 + np.ptp(rs2, axis=0)
-        # SNAP 3
-        self.norm_S3 = self.razlike + 4 * (self.n - 1)
-        # SNAP 5
-        self.norm_S5 = self.razlike + abs(min(self.razlike))
         sum1 = np.sum(self.norm_S1)
         sum3 = np.sum(self.norm_S3)
         sum5 = np.sum(self.norm_S5)
@@ -113,18 +104,11 @@ class SNAP:
         else:
             self.norm2_S11 = np.ones(self.n) / self.n
 
-        # Dio iz AHP-a SNAP 1, dvojka, četvorka i šestica su bez ovoga
-        self.tezine_S1 = (self.tezineUsporedbi + self.norm2_S1) / 2
         self.tezine_S2 = self.norm2_S1
-        self.tezine_S3 = (self.tezineUsporedbi + self.norm2_S3) / 2
         self.tezine_S4 = self.norm2_S3
-        self.tezine_S5 = (self.tezineUsporedbi + self.norm2_S5) / 2
         self.tezine_S6 = self.norm2_S5
-        self.tezine_S7 = (self.tezineUsporedbi + self.norm2_S7) / 2
         self.tezine_S8 = self.norm2_S7
-        self.tezine_S9 = (self.tezineUsporedbi + self.norm_S9.flatten()) / 2
         self.tezine_S10 = self.norm_S9
-        self.tezine_S11 = (self.tezineUsporedbi + self.norm2_S11) / 2
         self.tezine_S12 = self.norm2_S11
 
     def izracunajGranicnuMatricu(self, matrix):
@@ -148,15 +132,9 @@ class SNAP:
 
     def printResults(self):
         print(self.tezineUsporedbi)
-        print(self.tezine_S1)
         print(self.tezine_S2)
-        print(self.tezine_S3)
         print(self.tezine_S4)
-        print(self.tezine_S5)
         print(self.tezine_S6)
-        print(self.tezine_S7)
         print(self.tezine_S8)
-        print(self.tezine_S9)
         print(self.tezine_S10)
-        print(self.tezine_S11)
         print(self.tezine_S12)
