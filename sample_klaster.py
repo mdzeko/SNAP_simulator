@@ -342,6 +342,8 @@ def main():
 
 def processResults():
     df = pd.DataFrame(list(results.values()))
+    df.to_csv((outDir + "/rezANPvsANP_" + str(brojKriterija) + ".csv"), header=True,
+              sep=";")
     print("Broj krit. ", brojKriterija, " broj klast. ", brojKlastera, " broj komb:", len(df.index))
 
     correlation = df[correlationColumns].apply(pd.Series.value_counts)
