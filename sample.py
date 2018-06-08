@@ -6,7 +6,7 @@ from snap.SNAP import SNAP
 import numpy as np
 from scipy.stats import rankdata
 from functools import partial
-import csv
+import csv, math
 import ast
 import time
 import pandas as pd
@@ -221,21 +221,17 @@ def clear():
 
 
 def main():
-    pool = ThreadPool(4)
+    pool = ThreadPool(int(brojDretvi))
     # execute only if run as a script
-    with open("test.csv", "r") as csvUsporedbe, open("zavisnosti.csv", "r") as csvZavisnosti:
+    with open(inputUsporedbe, "r") as csvUsporedbe, open(inputZavisnosti, "r") as csvZavisnosti:
         usporedbeReader = csv.reader(csvUsporedbe, delimiter=';')
         zavisnostiReader = csv.reader(csvZavisnosti, delimiter=';')
         listaZavisnosti = list(zavisnostiReader)
         listaUsporedbi = list(usporedbeReader)
 
-    zavLista = []
-    for redak in listaZavisnosti:
-        zavLista.append(redak[0])
     for usporedba in listaUsporedbi:
         doPartOfSimulation = partial(doSimulation, usporedba[0])
         results.update(pool.imap_unordered(doPartOfSimulation, [redak[0] for redak in listaZavisnosti], chunksize=400))
-        print(sys.getsizeof(results) / 1024 / 1024)
 
 
 def processResults():
@@ -251,11 +247,12 @@ def processResults():
 
 
 if __name__ == "__main__":
-    # if sys.argv[1] in ("-h", "-help", "--help") or sys.argv.count() < 2:
-    #     print("main.py <datotekaUsporedbi> <datotekaZavisnost> <brojDretvi>")
-    #     print("PRIMJER: python main.py '~/usporedbe.csv' '~/zavisnosti.csv' 4")
-    #     sys.exit(2)
-    # inputUsporedbe, inputZavisnosti, brojDretvi = tuple(sys.argv[1:])
+    print("Argumenti", sys.argv)
+    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "-help", "--help"):
+        print("main.py <datotekaUsporedbi> <datotekaZavisnost> <brojDretvi> <direktorijIzlaza>")
+        print("PRIMJER: python main.py '~/usporedbe.csv' '~/zavisnosti.csv' 4 '/shared/mdzeko'")
+        sys.exit(2)
+    inputUsporedbe, inputZavisnosti, brojDretvi, outDir = tuple(sys.argv[1:])
     results = {}
     start = time.time()
     main()
