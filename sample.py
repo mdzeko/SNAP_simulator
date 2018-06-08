@@ -52,7 +52,7 @@ correlationColumns = ['rank_ANP1', 'rank_ANP2', 'rank_ANP3',
 
 
 def printExecutionTimes(t1, t2, t3, t4, t5, t_res):
-    print("Ukupno vrijeme izvršavanja", time.process_time() - totalElapsed)
+    print("Ukupno vrijeme izvrsavanja", time.process_time() - totalElapsed)
     print("ANP 1")
     print("max", np.max(t1))
     print("min", np.min(t1))
@@ -83,7 +83,7 @@ def printExecutionTimes(t1, t2, t3, t4, t5, t_res):
     print("prosjek", np.mean(t5))
     print("medijan", np.median(t5))
     print("=================")
-    print("Operacija izračuna rezultata")
+    print("Operacija izracuna rezultata")
     print("max", np.max(t_res))
     print("min", np.min(t_res))
     print("prosjek", np.mean(t_res))
