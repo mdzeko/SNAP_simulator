@@ -77,16 +77,16 @@ def doSimulation(usporedba, zavisnost):
     zav = MatricaZavisnosti(Generator.izradiMatZavisnosti(ast.literal_eval(zavisnost), brojKriterija))
 
     anp1 = ANP(usp.weights, zav.Z)
-    anp1.simulate()
+    anp1.simulate(variant='single')
 
     anp2 = ANP(usp.weights, zav.Z)
-    anp2.simulate(fiktivnaAlt=True, matricaPrijelaza=False)
+    anp2.simulate(fiktivnaAlt=True, matricaPrijelaza=False, variant='single')
 
     anp3 = ANP(usp.weights, zav.Z)
-    anp3.simulate(fiktivnaAlt=False, matricaPrijelaza=True)
+    anp3.simulate(fiktivnaAlt=False, matricaPrijelaza=True, variant='single')
 
     anp4 = ANP(usp.weights, zav.Z)
-    anp4.simulate(matricaPrijelaza=True, fiktivnaAlt=True)
+    anp4.simulate(matricaPrijelaza=True, fiktivnaAlt=True, variant='single')
 
     snap = SNAP(usp.weights, zav.Z)
     snap.simulate()
