@@ -17,7 +17,6 @@ from generator.Generetor import Generator
 from snap.SNAP import SNAP
 
 totalElapsed = time.process_time()
-brojKlastera = 2
 brojKriterija = 4
 
 distributionColumns = ['SNAP2_elem_R1', 'SNAP4_elem_R1', 'SNAP6_elem_R1', 'SNAP8_elem_R1',
@@ -204,6 +203,8 @@ def main():
     raspon = [0, 1, 2, 3, 4]
     if krnjiDematel:
         raspon = [0, 2, 4]
+        stop = int(math.pow(3, n) - 1)
+        koraci = {4: 2, 5: 1000, 6: 100000000}
     listaZavisnosti = itertools.islice(
         itertools.product(raspon, repeat=n), 0, stop, koraci[brojKriterija])
 
@@ -214,7 +215,7 @@ def main():
 
 def processResults():
     df = pd.DataFrame(list(results.values()))
-    print("Broj krit. ", brojKriterija, " broj klast. ", brojKlastera, " broj komb:", len(df.index))
+    print("Broj krit. ", brojKriterija, " broj komb:", len(df.index))
 
     correlation = df[correlationColumns].apply(pd.Series.value_counts)
     correlation.to_csv((outDir + "/spearman_" + str(brojKriterija) + ".csv"), header=True,
