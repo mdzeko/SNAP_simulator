@@ -42,10 +42,6 @@ class Generator:
         for combination in gen_array:
             if writeToFile:
                 fh.write(str(list(combination)) + "\n")
-            # pola = int(br / 2)
-            # a = np.array(list(combination[:pola]))
-            # b = np.array(list(combination[pola:]))
-            # Z = MatricaZavisnosti(np.matrix(self.izradiMatricu(a, b, n, 0)), combination)
         if writeToFile:
             fh.close()
 
@@ -82,6 +78,6 @@ class Generator:
     @staticmethod
     def izradiMatZavisnosti(kombinacija, n):
         pola = int(len(kombinacija) / 2)
-        a = np.array(list(kombinacija[:pola]))
-        b = np.array(list(kombinacija[pola:]))
+        a = np.array(kombinacija[:pola])
+        b = np.array(kombinacija[pola:])
         return Generator.izradiMatricu(a, b, n, 0)
