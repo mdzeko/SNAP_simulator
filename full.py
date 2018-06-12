@@ -196,7 +196,7 @@ def spearman_difference(diff):
 
 
 def main():
-    koraci = {4: 2, 5: 1000000, 6: 100000000000000}
+    koraci = {4: 10, 5: 1000000, 6: 100000000000000}
     pool = ThreadPool(int(brojDretvi))
     n = int((brojKriterija - 1) * brojKriterija)
     stop = int(math.pow(5, n) - 1)
@@ -204,7 +204,7 @@ def main():
     if krnjiDematel:
         raspon = [0, 2, 4]
         stop = int(math.pow(3, n) - 1)
-        koraci = {4: 2, 5: 1000, 6: 100000000}
+        koraci = {4: 10, 5: 1000, 6: 100000000}
     listaZavisnosti = itertools.islice(
         itertools.product(raspon, repeat=n), 0, stop, koraci[brojKriterija])
 
